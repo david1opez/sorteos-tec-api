@@ -20,7 +20,7 @@ app.get('/datos', async (req, res) => {
     
     const data = await db.execute('SELECT * FROM compra')
 
-    res.send({ data });
+    res.send(data[0]);
 });
 
 const PORT = 3000;
