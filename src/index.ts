@@ -63,11 +63,11 @@ app.post('/useCanica', async (req, res) => {
       database: process.env.DATABASE
   });
   
-  const data: any = await db.execute(`SELECT cantidad FROM invetario WHERE (usuarioid = user_id AND objetoId = canicas_id)`);
+  const data: any = await db.execute(`SELECT cantidad FROM invetario WHERE (usuarioid = ${user_id} AND objetoId = canicas_id)`);
   const canicas: any = data[0][0].cantidad;
 
   if (canicas > 0) {
-    await db.execute(`UPDATE inventario SET cantidad = cantidad - 1 WHERE (usuarioid = user_id AND objetoId = canicas_id)`);
+    await db.execute(`UPDATE inventario SET cantidad = cantidad - 1 WHERE (usuarioid = ${user_id} AND objetoId = canicas_id)`);
   }
 
   res.status(200).send({success: canicas > 0});
