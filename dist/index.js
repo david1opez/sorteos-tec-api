@@ -55,11 +55,11 @@ app.post('/useCanica', (req, res) => __awaiter(void 0, void 0, void 0, function*
         database: process.env.DATABASE
     });
     const data = yield db.execute(`SELECT cantidad FROM invetario WHERE (usuarioid = ${user_id} AND objetoId = canicas_id)`);
-    const canicas = data[0][0].cantidad;
-    if (canicas > 0) {
-        yield db.execute(`UPDATE inventario SET cantidad = cantidad - 1 WHERE (usuarioid = ${user_id} AND objetoId = canicas_id)`);
+    const cantidad = data[0][0].cantidad;
+    if (cantidad > 0) {
+        yield db.execute(`UPDATE inventario SET cantidad = ${cantidad - 1} WHERE (usuarioid = ${user_id} AND objetoId = canicas_id)`);
     }
-    res.status(200).send({ success: canicas > 0 });
+    res.status(200).send({ success: cantidad > 0 });
 }));
 const PORT = 3000;
 app.listen(PORT, () => {
