@@ -52,6 +52,27 @@ app.post('/setUsuario', async (req, res) => {
   res.send(data[0]);
 });
 
+app.post('/useCanica', async (req, res) => {
+  const { user_id } = req.body;
+
+  const db = await mysql.createConnection({
+      host: process.env.HOST,
+      port: parseInt(process.env.PORT!),
+      user: process.env.USER,
+      password: process.env.PASSWORD,
+      database: process.env.DATABASE
+  });
+  
+  const data: any = await db.execute(`SELECT cantidad FROM invetario WHERE (usuarioid = user_id AND objetoId = canicas_id)`);
+  const canicas: any = data[0][0].cantidad;
+
+  if (canicas > 0) {
+    await db.execute(`UPDATE inventario SET cantidad = cantidad - 1 WHERE (usuarioid = user_id AND objetoId = canicas_id)`);
+  }
+
+  res.status(200).send({success: canicas > 0});
+});
+
 const PORT = 3000;
 
 app.listen(PORT, () => {

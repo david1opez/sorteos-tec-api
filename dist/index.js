@@ -45,6 +45,22 @@ app.post('/setUsuario', (req, res) => __awaiter(void 0, void 0, void 0, function
     const data = yield db.execute(`INSERT INTO usuario (isAdmin, nombre, apellidoPaterno, apellidoMaterno, pais, estado, correo_electronico, dias_conectados, ultima_conexion, ewalletID) VALUES (FALSE, '${nombre}', '${apellidoPaterno}', '${apellidoMaterno}', '${pais}', '${estado}', '${correo_electronico}', ${dias_conectados}, '${ultima_conexion}', ${ewalletID})`);
     res.send(data[0]);
 }));
+app.post('/useCanica', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { user_id } = req.body;
+    const db = yield promise_1.default.createConnection({
+        host: process.env.HOST,
+        port: parseInt(process.env.PORT),
+        user: process.env.USER,
+        password: process.env.PASSWORD,
+        database: process.env.DATABASE
+    });
+    const data = yield db.execute(`SELECT cantidad FROM invetario WHERE (usuarioid = user_id AND objetoId = canicas_id)`);
+    const canicas = data[0][0].cantidad;
+    if (canicas > 0) {
+        yield db.execute(`UPDATE inventario SET cantidad = cantidad - 1 WHERE (usuarioid = user_id AND objetoId = canicas_id)`);
+    }
+    res.status(200).send({ success: canicas > 0 });
+}));
 const PORT = 3000;
 app.listen(PORT, () => {
     console.log(`Servidor backend escuchando en el puerto ${PORT}`);
