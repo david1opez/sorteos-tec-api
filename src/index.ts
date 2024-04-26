@@ -26,31 +26,44 @@ app.get('/getUsuarios', async (req, res) => {
 });
 
 app.post('/crearUsuario', async (req, res) => {
-  console.log(req.body);
-  // const {
-  //   nombre,
-  //   apellidoPaterno,
-  //   apellidoMaterno,
-  //   pais,
-  //   estado,
-  //   correo_electronico,
-  //   dias_conectados,
-  //   ultima_conexion
-  // } = req.body;
+  const {
+    uid,
+    nombre,
+    apellidoPaterno,
+    apellidoMaterno,
+    pais,
+    estado,
+    correo_electronico,
+    telefono,
+  } = req.body;
 
-  // const db = await mysql.createConnection({
-  //     host: process.env.HOST,
-  //     port: parseInt(process.env.PORT!),
-  //     user: process.env.USER,
-  //     password: process.env.PASSWORD,
-  //     database: process.env.DATABASE
-  // });
+  const db = await mysql.createConnection({
+      host: process.env.HOST,
+      port: parseInt(process.env.PORT!),
+      user: process.env.USER,
+      password: process.env.PASSWORD,
+      database: process.env.DATABASE
+  });
 
-  // const ewalletID = Math.floor(Math.random() * 8) + 1;
+  const paises: {[key: string]: number} = {
+    "México": 1,
+  }
+
+  const estados: {[key: string]: number} = {
+    "Coahuila": 5,
+    "Nuevo León": 19
+  }
+
+  const ultimaConexion = new Date().toISOString().slice(0, 10);
+  console.log(`${ultimaConexion}`);
+
+  const ewalletID = Math.floor(Math.random() * 8) + 1;
   
-  // const data = await db.execute(`INSERT INTO usuario (isAdmin, nombre, apellidoPaterno, apellidoMaterno, pais, estado, correo_electronico, dias_conectados, ultima_conexion, ewalletID) VALUES (FALSE, '${nombre}', '${apellidoPaterno}', '${apellidoMaterno}', '${pais}', '${estado}', '${correo_electronico}', ${dias_conectados}, '${ultima_conexion}', ${ewalletID})`)
+  const params = "isAdmin, nombre, apellidoPaterno, apellidoMaterno, diasConectado, ultimaConexion, correoElectronico, UID, paisID, estadoID, walletID";
+  const values = `FALSE, "${nombre}", "${apellidoPaterno}", "${apellidoMaterno}", 0, "${ultimaConexion}", "${correo_electronico}", "${uid}", ${paises[pais]}, ${estados[estado]}, ${ewalletID}`
+  const data = await db.execute(`INSERT INTO usuario (${params}) VALUES (${values})`)
 
-  // res.send(data[0]);
+  res.send(data[0]);
 });
 
 app.post('/useCanica', async (req, res) => {

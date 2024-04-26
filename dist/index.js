@@ -32,8 +32,8 @@ app.get('/getUsuarios', (req, res) => __awaiter(void 0, void 0, void 0, function
     const data = yield db.execute(`SELECT * FROM usuario`);
     res.send(data[0]);
 }));
-app.post('/setUsuario', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { nombre, apellidoPaterno, apellidoMaterno, pais, estado, correo_electronico, dias_conectados, ultima_conexion } = req.body;
+app.post('/crearUsuario', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { uid, nombre, apellidoPaterno, apellidoMaterno, pais, estado, correo_electronico, telefono, } = req.body;
     const db = yield promise_1.default.createConnection({
         host: process.env.HOST,
         port: parseInt(process.env.PORT),
@@ -41,8 +41,19 @@ app.post('/setUsuario', (req, res) => __awaiter(void 0, void 0, void 0, function
         password: process.env.PASSWORD,
         database: process.env.DATABASE
     });
+    const paises = {
+        "México": 1,
+    };
+    const estados = {
+        "Coahuila": 5,
+        "Nuevo León": 19
+    };
+    const ultimaConexion = new Date().toISOString().slice(0, 10);
+    console.log(`${ultimaConexion}`);
     const ewalletID = Math.floor(Math.random() * 8) + 1;
-    const data = yield db.execute(`INSERT INTO usuario (isAdmin, nombre, apellidoPaterno, apellidoMaterno, pais, estado, correo_electronico, dias_conectados, ultima_conexion, ewalletID) VALUES (FALSE, '${nombre}', '${apellidoPaterno}', '${apellidoMaterno}', '${pais}', '${estado}', '${correo_electronico}', ${dias_conectados}, '${ultima_conexion}', ${ewalletID})`);
+    const params = "isAdmin, nombre, apellidoPaterno, apellidoMaterno, diasConectado, ultimaConexion, correoElectronico, UID, paisID, estadoID, walletID";
+    const values = `FALSE, "${nombre}", "${apellidoPaterno}", "${apellidoMaterno}", 0, "${ultimaConexion}", "${correo_electronico}", "${uid}", ${paises[pais]}, ${estados[estado]}, ${ewalletID}`;
+    const data = yield db.execute(`INSERT INTO usuario (${params}) VALUES (${values})`);
     res.send(data[0]);
 }));
 app.post('/useCanica', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -54,10 +65,11 @@ app.post('/useCanica', (req, res) => __awaiter(void 0, void 0, void 0, function*
         password: process.env.PASSWORD,
         database: process.env.DATABASE
     });
-    const data = yield db.execute(`SELECT cantidad FROM inventario WHERE (usuarioid = ${user_id} AND objetoId = 1)`);
+    const data = yield db.execute(`SELECT cantidad FROM inventario WHERE (usuarioID = ${user_id} AND objetoID = 1)`);
+    console.log(data);
     const cantidad = data[0][0].cantidad;
     if (cantidad > 0) {
-        yield db.execute(`UPDATE inventario SET cantidad = ${cantidad - 1} WHERE (usuarioid = ${user_id} AND objetoId = 1)`);
+        yield db.execute(`UPDATE inventario SET cantidad = ${cantidad - 1} WHERE (usuarioID = ${user_id} AND objetoID = 1)`);
     }
     res.status(200).send({ success: cantidad > 0 });
 }));
