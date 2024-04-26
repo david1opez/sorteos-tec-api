@@ -57,9 +57,10 @@ app.post('/crearUsuario', async (req, res) => {
   const ultimaConexion = new Date().toISOString().slice(0, 10);
 
   const ewalletID = Math.floor(Math.random() * (1050 - 1001 + 1)) + 1001;
+  const userid = Math.floor(Math.random() * (50000 - 1000 + 1)) + 1000;
   
-  const params = "isAdmin, nombre, apellidoPaterno, apellidoMaterno, diasConectado, ultimaConexion, correoElectronico, UID, paisID, estadoID, walletID";
-  const values = `FALSE, "${nombre}", "${apellidoPaterno}", "${apellidoMaterno}", 0, "${ultimaConexion}", "${correo_electronico}", "${uid}", ${paises[pais]}, ${estados[estado]}, ${ewalletID}`
+  const params = "usuarioID, isAdmin, nombre, apellidoPaterno, apellidoMaterno, diasConectado, ultimaConexion, correoElectronico, UID, paisID, estadoID, walletID";
+  const values = `${userid}, FALSE, "${nombre}", "${apellidoPaterno}", "${apellidoMaterno}", 0, "${ultimaConexion}", "${correo_electronico}", "${uid}", ${paises[pais]}, ${estados[estado]}, ${ewalletID}`
   const data = await db.execute(`INSERT INTO usuario (${params}) VALUES (${values})`)
 
   res.send(data[0]);
