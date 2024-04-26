@@ -25,31 +25,32 @@ app.get('/getUsuarios', async (req, res) => {
     res.send(data[0]);
 });
 
-app.post('/setUsuario', async (req, res) => {
-  const {
-    nombre,
-    apellidoPaterno,
-    apellidoMaterno,
-    pais,
-    estado,
-    correo_electronico,
-    dias_conectados,
-    ultima_conexion
-  } = req.body;
+app.post('/crearUsuario', async (req, res) => {
+  console.log(req.body);
+  // const {
+  //   nombre,
+  //   apellidoPaterno,
+  //   apellidoMaterno,
+  //   pais,
+  //   estado,
+  //   correo_electronico,
+  //   dias_conectados,
+  //   ultima_conexion
+  // } = req.body;
 
-  const db = await mysql.createConnection({
-      host: process.env.HOST,
-      port: parseInt(process.env.PORT!),
-      user: process.env.USER,
-      password: process.env.PASSWORD,
-      database: process.env.DATABASE
-  });
+  // const db = await mysql.createConnection({
+  //     host: process.env.HOST,
+  //     port: parseInt(process.env.PORT!),
+  //     user: process.env.USER,
+  //     password: process.env.PASSWORD,
+  //     database: process.env.DATABASE
+  // });
 
-  const ewalletID = Math.floor(Math.random() * 8) + 1;
+  // const ewalletID = Math.floor(Math.random() * 8) + 1;
   
-  const data = await db.execute(`INSERT INTO usuario (isAdmin, nombre, apellidoPaterno, apellidoMaterno, pais, estado, correo_electronico, dias_conectados, ultima_conexion, ewalletID) VALUES (FALSE, '${nombre}', '${apellidoPaterno}', '${apellidoMaterno}', '${pais}', '${estado}', '${correo_electronico}', ${dias_conectados}, '${ultima_conexion}', ${ewalletID})`)
+  // const data = await db.execute(`INSERT INTO usuario (isAdmin, nombre, apellidoPaterno, apellidoMaterno, pais, estado, correo_electronico, dias_conectados, ultima_conexion, ewalletID) VALUES (FALSE, '${nombre}', '${apellidoPaterno}', '${apellidoMaterno}', '${pais}', '${estado}', '${correo_electronico}', ${dias_conectados}, '${ultima_conexion}', ${ewalletID})`)
 
-  res.send(data[0]);
+  // res.send(data[0]);
 });
 
 app.post('/useCanica', async (req, res) => {
@@ -64,6 +65,9 @@ app.post('/useCanica', async (req, res) => {
   });
   
   const data: any = await db.execute(`SELECT cantidad FROM inventario WHERE (usuarioid = ${user_id} AND objetoId = 1)`);
+
+  console.log(data);
+  
   const cantidad: any = data[0][0].cantidad;
 
   if (cantidad > 0) {
