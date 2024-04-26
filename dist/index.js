@@ -66,11 +66,24 @@ app.post('/useCanica', (req, res) => __awaiter(void 0, void 0, void 0, function*
         database: process.env.DATABASE
     });
     const data = yield db.execute(`SELECT cantidad FROM inventario WHERE (usuarioID = ${user_id} AND objetoID = 1)`);
-    console.log(data);
     const cantidad = data[0][0].cantidad;
     if (cantidad > 0) {
         yield db.execute(`UPDATE inventario SET cantidad = ${cantidad - 1} WHERE (usuarioID = ${user_id} AND objetoID = 1)`);
     }
+    res.status(200).send({ success: cantidad > 0 });
+}));
+app.post('/addReward', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { user_id, reward_id, cantidad } = req.body;
+    const db = yield promise_1.default.createConnection({
+        host: process.env.HOST,
+        port: parseInt(process.env.PORT),
+        user: process.env.USER,
+        password: process.env.PASSWORD,
+        database: process.env.DATABASE
+    });
+    const params = "usuarioID, objetoID, cantidad";
+    const values = `"${user_id}", "${reward_id}", ${cantidad}`;
+    yield db.execute(`INSERT INTO inventario (${params}) VALUES (${values}) ON DUPLICATE KEY UPDATE cantidad = ${cantidad};`);
     res.status(200).send({ success: cantidad > 0 });
 }));
 const PORT = 3000;

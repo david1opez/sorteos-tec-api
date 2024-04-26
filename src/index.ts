@@ -78,8 +78,6 @@ app.post('/useCanica', async (req, res) => {
   });
   
   const data: any = await db.execute(`SELECT cantidad FROM inventario WHERE (usuarioID = ${user_id} AND objetoID = 1)`);
-
-  console.log(data);
   
   const cantidad: any = data[0][0].cantidad;
 
@@ -87,6 +85,25 @@ app.post('/useCanica', async (req, res) => {
     await db.execute(`UPDATE inventario SET cantidad = ${cantidad-1} WHERE (usuarioID = ${user_id} AND objetoID = 1)`);
   }
 
+  res.status(200).send({success: cantidad > 0});
+});
+
+app.post('/addReward', async (req, res) => {
+  const { user_id, reward_id, cantidad } = req.body;
+
+  const db = await mysql.createConnection({
+      host: process.env.HOST,
+      port: parseInt(process.env.PORT!),
+      user: process.env.USER,
+      password: process.env.PASSWORD,
+      database: process.env.DATABASE
+  });
+
+  const params = "usuarioID, objetoID, cantidad";
+  const values = `"${user_id}", "${reward_id}", ${cantidad}`;
+
+  await db.execute(`INSERT INTO inventario (${params}) VALUES (${values}) ON DUPLICATE KEY UPDATE cantidad = ${cantidad};`);
+  
   res.status(200).send({success: cantidad > 0});
 });
 
