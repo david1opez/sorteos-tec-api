@@ -55,9 +55,8 @@ app.post('/crearUsuario', async (req, res) => {
   }
 
   const ultimaConexion = new Date().toISOString().slice(0, 10);
-  console.log(`${ultimaConexion}`);
 
-  const ewalletID = Math.floor(Math.random() * 8) + 1;
+  const ewalletID = Math.floor(Math.random() * (1050 - 1001 + 1)) + 1001;
   
   const params = "isAdmin, nombre, apellidoPaterno, apellidoMaterno, diasConectado, ultimaConexion, correoElectronico, UID, paisID, estadoID, walletID";
   const values = `FALSE, "${nombre}", "${apellidoPaterno}", "${apellidoMaterno}", 0, "${ultimaConexion}", "${correo_electronico}", "${uid}", ${paises[pais]}, ${estados[estado]}, ${ewalletID}`
