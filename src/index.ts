@@ -88,8 +88,8 @@ app.post('/useCanica', async (req, res) => {
   res.status(200).send({success: cantidad > 0});
 });
 
-app.post('/addReward', async (req, res) => {
-  const { user_id, reward_id, cantidad } = req.body;
+app.post('/addObject', async (req, res) => {
+  const { user_id, object_id, cantidad } = req.body;
 
   const db = await mysql.createConnection({
       host: process.env.HOST,
@@ -100,11 +100,33 @@ app.post('/addReward', async (req, res) => {
   });
 
   const params = "usuarioID, objetoID, cantidad";
-  const values = `"${user_id}", "${reward_id}", ${cantidad}`;
+  const values = `"${user_id}", "${object_id}", ${cantidad}`;
 
-  await db.execute(`INSERT INTO inventario (${params}) VALUES (${values}) ON DUPLICATE KEY UPDATE cantidad = ${cantidad};`);
+  const data: any = await db.execute(`SELECT cantidad FROM inventario WHERE (usuarioID = ${user_id} AND objetoID = ${object_id})`);
+
+  const q: any = data[0][0].cantidad;
+
+  await db.execute(`INSERT INTO inventario (${params}) VALUES (${values}) ON DUPLICATE KEY UPDATE cantidad = ${q+cantidad};`);
   
-  res.status(200).send({success: cantidad > 0});
+  res.status(200);
+});
+
+app.post('/getObjectQuantity', async (req, res) => {
+  const { user_id, object_id } = req.body;
+
+  const db = await mysql.createConnection({
+      host: process.env.HOST,
+      port: parseInt(process.env.PORT!),
+      user: process.env.USER,
+      password: process.env.PASSWORD,
+      database: process.env.DATABASE
+  });
+
+  const data: any = await db.execute(`SELECT cantidad FROM inventario WHERE (usuarioID = ${user_id} AND objetoID = ${object_id})`);
+
+  const cantidad: any = data[0][0].cantidad;
+  
+  res.status(200).send({cantidad});
 });
 
 const PORT = 3000;

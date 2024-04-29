@@ -72,8 +72,8 @@ app.post('/useCanica', (req, res) => __awaiter(void 0, void 0, void 0, function*
     }
     res.status(200).send({ success: cantidad > 0 });
 }));
-app.post('/addReward', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { user_id, reward_id, cantidad } = req.body;
+app.post('/addObject', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { user_id, object_id, cantidad } = req.body;
     const db = yield promise_1.default.createConnection({
         host: process.env.HOST,
         port: parseInt(process.env.PORT),
@@ -82,9 +82,24 @@ app.post('/addReward', (req, res) => __awaiter(void 0, void 0, void 0, function*
         database: process.env.DATABASE
     });
     const params = "usuarioID, objetoID, cantidad";
-    const values = `"${user_id}", "${reward_id}", ${cantidad}`;
-    yield db.execute(`INSERT INTO inventario (${params}) VALUES (${values}) ON DUPLICATE KEY UPDATE cantidad = ${cantidad};`);
-    res.status(200).send({ success: cantidad > 0 });
+    const values = `"${user_id}", "${object_id}", ${cantidad}`;
+    const data = yield db.execute(`SELECT cantidad FROM inventario WHERE (usuarioID = ${user_id} AND objetoID = ${object_id})`);
+    const q = data[0][0].cantidad;
+    yield db.execute(`INSERT INTO inventario (${params}) VALUES (${values}) ON DUPLICATE KEY UPDATE cantidad = ${q + cantidad};`);
+    res.status(200);
+}));
+app.post('/getObjectQuantity', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { user_id, object_id } = req.body;
+    const db = yield promise_1.default.createConnection({
+        host: process.env.HOST,
+        port: parseInt(process.env.PORT),
+        user: process.env.USER,
+        password: process.env.PASSWORD,
+        database: process.env.DATABASE
+    });
+    const data = yield db.execute(`SELECT cantidad FROM inventario WHERE (usuarioID = ${user_id} AND objetoID = ${object_id})`);
+    const cantidad = data[0][0].cantidad;
+    res.status(200).send({ cantidad });
 }));
 const PORT = 3000;
 app.listen(PORT, () => {
