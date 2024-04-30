@@ -86,7 +86,7 @@ app.post('/addObject', (req, res) => __awaiter(void 0, void 0, void 0, function*
     const data = yield db.execute(`SELECT cantidad FROM inventario WHERE (usuarioID = ${user_id} AND objetoID = ${object_id})`);
     const q = data[0][0].cantidad;
     yield db.execute(`INSERT INTO inventario (${params}) VALUES (${values}) ON DUPLICATE KEY UPDATE cantidad = ${q + cantidad};`);
-    res.status(200);
+    res.status(200).send({ success: true });
 }));
 app.post('/getObjectQuantity', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { user_id, object_id } = req.body;
@@ -100,6 +100,18 @@ app.post('/getObjectQuantity', (req, res) => __awaiter(void 0, void 0, void 0, f
     const data = yield db.execute(`SELECT cantidad FROM inventario WHERE (usuarioID = ${user_id} AND objetoID = ${object_id})`);
     const cantidad = data[0][0].cantidad;
     res.status(200).send({ cantidad });
+}));
+app.get('/getUser', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { uid } = req.query;
+    const db = yield promise_1.default.createConnection({
+        host: process.env.HOST,
+        port: parseInt(process.env.PORT),
+        user: process.env.USER,
+        password: process.env.PASSWORD,
+        database: process.env.DATABASE
+    });
+    const data = yield db.execute(`SELECT * FROM usuario WHERE UID = "${uid}"`);
+    res.send(data[0]);
 }));
 const PORT = 3000;
 app.listen(PORT, () => {

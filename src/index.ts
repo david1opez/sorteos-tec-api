@@ -108,7 +108,7 @@ app.post('/addObject', async (req, res) => {
 
   await db.execute(`INSERT INTO inventario (${params}) VALUES (${values}) ON DUPLICATE KEY UPDATE cantidad = ${q+cantidad};`);
   
-  res.status(200);
+  res.status(200).send({success: true});
 });
 
 app.post('/getObjectQuantity', async (req, res) => {
@@ -127,6 +127,22 @@ app.post('/getObjectQuantity', async (req, res) => {
   const cantidad: any = data[0][0].cantidad;
   
   res.status(200).send({cantidad});
+});
+
+app.get('/getUser', async (req, res) => {
+  const { uid } = req.query;
+
+  const db = await mysql.createConnection({
+    host: process.env.HOST,
+    port: parseInt(process.env.PORT!),
+    user: process.env.USER,
+    password: process.env.PASSWORD,
+    database: process.env.DATABASE
+  });
+
+  const data = await db.execute(`SELECT * FROM usuario WHERE UID = "${uid}"`);
+
+  res.send(data[0]);
 });
 
 const PORT = 3000;
