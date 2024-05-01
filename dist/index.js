@@ -17,6 +17,7 @@ const promise_1 = __importDefault(require("mysql2/promise"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const cors_1 = __importDefault(require("cors"));
 const body_parser_1 = __importDefault(require("body-parser"));
+const stripe_1 = require("stripe");
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 app.use((0, cors_1.default)());
@@ -112,6 +113,31 @@ app.get('/getUser', (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     });
     const data = yield db.execute(`SELECT * FROM usuario WHERE UID = "${uid}"`);
     res.send(data[0]);
+}));
+const stripe = new stripe_1.Stripe(process.env.STRIPE_SK || '');
+app.get('/createStripeClient', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { name, email } = req.query;
+    const { id } = yield stripe.customers.create({
+        name: typeof name === 'string' ? name : '',
+        email: typeof email === 'string' ? email : '',
+    });
+    res.send({ id });
+}));
+app.get('/getClientSecret', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { amount, id } = req.query;
+    const customer = yield stripe.customers.retrieve(typeof id === 'string' ? id : '');
+    const paymentIntent = yield stripe.paymentIntents.create({
+        amount: typeof amount === 'string' ? parseInt(amount) * 100 : 0,
+        currency: 'mxn',
+        customer: typeof customer.id === 'string' ? customer.id : '',
+        setup_future_usage: 'off_session',
+    });
+    res.send({ client_secret: paymentIntent.client_secret });
+}));
+app.get('/getCards', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.query;
+    const cards = yield stripe.customers.listSources(typeof id === 'string' ? id : '', { object: 'card' });
+    res.send(cards.data);
 }));
 const PORT = 3000;
 app.listen(PORT, () => {

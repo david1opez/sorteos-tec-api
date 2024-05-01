@@ -3,6 +3,7 @@ import mysql from 'mysql2/promise';
 import dotenv from 'dotenv'
 import cors from 'cors';
 import bodyParser from 'body-parser';
+import { Stripe } from 'stripe';
 
 dotenv.config();
 
@@ -143,6 +144,42 @@ app.get('/getUser', async (req, res) => {
   const data = await db.execute(`SELECT * FROM usuario WHERE UID = "${uid}"`);
 
   res.send(data[0]);
+});
+
+const stripe = new Stripe(process.env.STRIPE_SK || '');
+
+app.get('/createStripeClient', async (req, res) => {
+  const { name, email } = req.query;
+
+  const { id } = await stripe.customers.create({
+    name: typeof name === 'string' ? name : '',
+    email: typeof email === 'string' ? email : '',
+  });
+
+  res.send({id});
+});
+
+app.get('/getClientSecret', async (req, res) => {
+  const { amount, id } = req.query;
+
+  const customer = await stripe.customers.retrieve(typeof id === 'string' ? id : '');
+
+  const paymentIntent = await stripe.paymentIntents.create({
+    amount: typeof amount === 'string' ? parseInt(amount)*100 : 0,
+    currency: 'mxn',
+    customer: typeof customer.id === 'string' ? customer.id : '',
+    setup_future_usage: 'off_session',
+  });
+
+  res.send({client_secret: paymentIntent.client_secret});
+});
+
+app.get('/getCards', async (req, res) => {
+  const { id } = req.query;
+
+  const cards = await stripe.customers.listSources(typeof id === 'string' ? id : '', {object: 'card'});
+
+  res.send(cards.data);
 });
 
 const PORT = 3000;
