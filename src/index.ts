@@ -160,7 +160,7 @@ app.get('/createStripeClient', async (req, res) => {
 });
 
 app.get('/getClientSecret', async (req, res) => {
-  const { amount, id } = req.query;
+  const { amount, id } = req.query; 
 
   const customer = await stripe.customers.retrieve(typeof id === 'string' ? id : '');
 
