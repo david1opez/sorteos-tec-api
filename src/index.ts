@@ -185,5 +185,6 @@ app.get('/getCards', async (req, res) => {
 const PORT = 3000;
 
 app.listen(PORT, () => {
+  console.log()
   console.log(`Servidor backend escuchando en el puerto ${PORT}`);
 });
